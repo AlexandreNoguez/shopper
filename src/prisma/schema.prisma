@@ -1,0 +1,17 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Location {
+  id          Int     @id @default(autoincrement())
+  origin      String
+  destination String
+  distance    Float
+  duration    Float
+  createdAt   DateTime @default(now())
+}
