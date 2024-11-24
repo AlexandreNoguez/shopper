@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { GoogleMap, Polyline, useLoadScript } from "@react-google-maps/api";
+import BaseButton from "../components/BaseButton";
+import { Box, InputBase } from "@mui/material";
 
 const GoogleMapView: React.FC = () => {
   const [origin, setOrigin] = useState<string>("Porto Alegre, RS");
@@ -9,14 +11,15 @@ const GoogleMapView: React.FC = () => {
     { lat: number; lng: number }[] | null
   >(null);
 
-  const GOOGLE_API_KEY = "";
-  const API_URL = "http://localhost:8080/api/ride/estimate";
+  const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
+  const API_URL = import.meta.env.VITE_API_URL;
 
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: GOOGLE_API_KEY,
   });
 
-  const calculateRoute = async () => {
+  const sendOriginDestination = async () => {
+    // const;
     try {
       const response = await axios.post(API_URL, {
         params: {
@@ -38,6 +41,7 @@ const GoogleMapView: React.FC = () => {
     }
   };
 
+  // método encontrado no stackoverflowd
   const decodePolyline = (encoded: string): { lat: number; lng: number }[] => {
     let points: { lat: number; lng: number }[] = [];
     let index = 0,
@@ -72,22 +76,43 @@ const GoogleMapView: React.FC = () => {
   console.log("polylinePath", polylinePath);
 
   return (
-    <div>
+    <Box sx={{ width: "100%" }}>
       <h1>Mapa de Rotas</h1>
-      <div>
-        <label>
-          Origem:
-          <input value={origin} onChange={(e) => setOrigin(e.target.value)} />
-        </label>
-        <label>
-          Destino:
-          <input
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 2,
+          mb: 4,
+        }}
+      >
+        <Box>
+          <p>Origem:</p>
+          <InputBase
+            value={origin}
+            onChange={(e) => setOrigin(e.target.value)}
+            placeholder="Digite um ponto de partida"
+            sx={{
+              backgroundColor: "#f0f0f0",
+              borderRadius: "5px",
+            }}
+          />
+        </Box>
+        <Box>
+          <p>Destino:</p>
+          <InputBase
             value={destination}
             onChange={(e) => setDestination(e.target.value)}
+            placeholder="Digite destino"
+            sx={{
+              backgroundColor: "#f0f0f0",
+              borderRadius: "5px",
+              paddingInline: 1,
+            }}
           />
-        </label>
-        <button onClick={calculateRoute}>Calcular Rota</button>
-      </div>
+        </Box>
+        <BaseButton onClick={sendOriginDestination}>Calcular Rota</BaseButton>
+      </Box>
       {isLoaded && (
         <GoogleMap
           center={{ lat: -30.0277, lng: -51.2287 }}
@@ -97,7 +122,7 @@ const GoogleMapView: React.FC = () => {
           {polylinePath && <Polyline path={polylinePath} />}
         </GoogleMap>
       )}
-    </div>
+    </Box>
   );
 };
 

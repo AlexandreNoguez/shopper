@@ -1,12 +1,22 @@
+import { ToastContainer } from "react-toastify";
+import { Container } from "@mui/material";
+
+import Header from "./components/Header";
+
+import AppRoutes from "./routes/AppRoutes";
+
 import "./App.css";
-import GoogleMapView from "./components/GoogleMapView";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   return (
-    <div>
-      {/* <GoogleMap />; */}
-      <GoogleMapView />
-    </div>
+    <>
+      <Header />
+      <Container maxWidth={"xl"}>
+        <AppRoutes />
+        <ToastContainer />
+      </Container>
+    </>
   );
 }
 
