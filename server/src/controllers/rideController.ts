@@ -1,9 +1,21 @@
 import { Request, Response } from "express";
+import { calculateRide } from "../services/rideService";
 
-export const calculateRide = (req: Request, res: Response) => {
-  const { origin, destination } = req.body;
-  // Integração com Google Maps aqui
-  res.json({ distance: 15.2, estimatedPrice: 30 });
+export const getCalculateRide = (req: Request, res: Response) => {
+  const { customer_id, origin, destination } = req.body;
+  // if (!customer_id || !origin || !destination) {
+  //   throw new Error("All fields must be filled");
+  // }
+
+  try {
+    const calculate = calculateRide();
+    res.status(200).json(calculate);
+    // calculateRoute(customer_id, origin, destination);
+  } catch (error) {
+    console.error(error);
+
+    throw new Error("Failed to calculate route, try again later.");
+  }
 };
 
 export const confirmRide = (req: Request, res: Response) => {

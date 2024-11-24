@@ -1,14 +1,14 @@
 import { Router } from "express";
 import {
-  calculateRide,
+  getCalculateRide,
   confirmRide,
-  getRides,
+  // getRides,
 } from "../controllers/rideController";
 
 const router = Router();
 
-router.post("/estimate", calculateRide);
+router.post("/estimate", getCalculateRide);
 router.patch("/confirm", confirmRide);
-router.get("/{customer_id}", getRides);
+// router.get("/{customer_id}", getRides);
 
 export default router;

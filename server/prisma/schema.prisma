@@ -48,6 +48,10 @@ model Ride {
   userId       Int
   driver       Driver   @relation(fields: [driverId], references: [id])
   driverId     Int
+  origin       String
+  destination  String
+  distance     String
+  duration     String
   date         DateTime
 
   @@map("ride")

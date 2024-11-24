@@ -11,14 +11,14 @@ app.use(cors());
 app.use(express.json());
 
 // Rotas
-app.use("/ride", rideRoutes);
-app.use("/health", healthRoutes);
+app.use("/api/ride", rideRoutes);
+app.use("/api/health", healthRoutes);
 
 // Teste adicional de funcionalidade
-async function getRoute() {
-  const response = await getRouteDetails("Toronto", "Montreal");
-  console.log(response);
-}
-getRoute();
+// async function getRoute() {
+//   const response = await getRouteDetails("Toronto", "Montreal");
+//   console.log(response);
+// }
+// getRoute();
 
 export default app;

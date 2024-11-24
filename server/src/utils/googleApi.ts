@@ -1,9 +1,8 @@
 import axios from "axios";
-
-const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY || "";
-
-// Base URL da API de rotas do Google
-const GOOGLE_DIRECTIONS_URL = `https://maps.googleapis.com/maps/api/directions/json?`;
+import {
+  GOOGLE_API_KEY,
+  GOOGLE_DIRECTIONS_URL,
+} from "../constants/googleConfig";
 
 export const getRouteDetails = async (origin: string, destination: string) => {
   if (!GOOGLE_API_KEY) {
