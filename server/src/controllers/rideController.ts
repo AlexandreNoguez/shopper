@@ -1,28 +1,25 @@
 import { Request, Response } from "express";
-import { getRouteDetails } from "../utils/googleApi";
-import { calculateRide } from "../services/rideService";
+import { getRouteDetails } from "../services/rideService";
 
 export const getCalculateRide = async (req: Request, res: Response) => {
   const { customer_id, origin, destination } = req.body;
-  // if (!customer_id || !origin || !destination) {
-  //   throw new Error("All fields must be filled");
-  // }
-  console.log("BODY", req.body);
+  if (!customer_id || !origin || !destination) {
+    return res.status(400).json({ message: "All fields must be filled" });
+  }
+
+  if (origin === destination) {
+    return res
+      .status(400)
+      .json({ message: "Origin and destination must be different" });
+  }
 
   try {
-    // const calculate = calculateRide();
-    // const calculateServiceRode = await calculateRide();
-    // console.log("calculateServiceRode", calculateServiceRode);
-
     const calculate = await getRouteDetails(origin, destination);
-    console.log("calculate", calculate);
 
-    res.status(200).json(calculate);
-    // calculateRoute(customer_id, origin, destination);
+    return res.status(200).json(calculate);
   } catch (error) {
     console.error(error);
-
-    throw new Error("Failed to calculate route, try again later.");
+    return res.status(500).json(error);
   }
 };
 

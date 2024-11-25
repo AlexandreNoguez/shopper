@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { Box, Typography } from "@mui/material";
@@ -7,96 +7,77 @@ import { GoogleMap, Polyline, useLoadScript } from "@react-google-maps/api";
 import BaseButton from "../components/BaseButton";
 import BaseInput from "../components/BaseInput";
 import useWindowSize from "../hooks/useSizeObserver";
+import { getRideEstimate } from "../services/rideService";
 
-import Api from "../services/axiosConfig";
+interface LatLng {
+  lat: number;
+  lng: number;
+}
 
 const GoogleMapView: React.FC = () => {
   const [origin, setOrigin] = useState<string>("Porto Alegre, RS");
   const [destination, setDestination] = useState<string>("Novo Hamburgo, RS");
+  const [distanceKm, setDistanceKm] = useState<string>("");
+  const [rideDuration, setRideDuration] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
-  const [polylinePath, setPolylinePath] = useState<
-    { lat: number; lng: number }[] | null
-  >(null);
+  const [polylinePath, setPolylinePath] = useState<LatLng[] | null>(null);
+  const [mapCenter, setMapCenter] = useState<LatLng>({
+    lat: -30.0277,
+    lng: -51.2287,
+  });
 
   const { width } = useWindowSize();
-  const { currentUser } = useSelector(
+  const { id, currentUser } = useSelector(
     (rootReducer: any) => rootReducer.userReducer
   );
 
   const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
-  const API_URL = import.meta.env.VITE_API_URL;
 
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: GOOGLE_API_KEY,
   });
 
-  const sendOriginDestination = async () => {
+  const mapRef = useRef<google.maps.Map | null>(null);
+
+  const handleCalculateRoute = async () => {
     setPolylinePath(null);
 
     if (!currentUser) {
       return toast.warning("Antes de calcular, faça o login por favor!");
     }
 
+    if (!origin || !destination) {
+      return toast.warning("Origem e destino devem ser preenchidos!");
+    }
+
     setLoading(true);
 
-    const requestBody = {
-      origin,
-      destination,
-    };
-
     try {
-      const response = await Api.post(`${API_URL}/ride/estimate`, requestBody);
+      const result = await getRideEstimate({
+        customer_id: id,
+        origin,
+        destination,
+      });
 
-      if (response.data.status === "OK") {
-        const polyline = response.data.routes[0].overview_polyline.points;
-        console.log(polyline);
+      setDistanceKm(result.distance);
+      setRideDuration(result.duration);
+      setPolylinePath(result.path);
 
-        const path = decodePolyline(polyline); // Decodifica a polilinha
-        setPolylinePath(path);
-        setLoading(false);
-      } else {
-        alert(`Erro: ${response.data.error_message}`);
+      if (result.path.length > 0) {
+        setMapCenter(result.path[0]); // Define o centro como o primeiro ponto da rota
       }
-    } catch (error) {
-      console.error("Erro ao calcular rota:", error);
+
+      if (mapRef.current && result.path.length > 0) {
+        const bounds = new google.maps.LatLngBounds();
+        result.path.forEach((point) => bounds.extend(point));
+        mapRef.current.fitBounds(bounds);
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao calcular rota. Tente novamente.");
     } finally {
       setLoading(false);
     }
   };
-
-  // método encontrado no stackoverflowd
-  const decodePolyline = (encoded: string): { lat: number; lng: number }[] => {
-    let points: { lat: number; lng: number }[] = [];
-    let index = 0,
-      lat = 0,
-      lng = 0;
-
-    while (index < encoded.length) {
-      let b,
-        shift = 0,
-        result = 0;
-      do {
-        b = encoded.charCodeAt(index++) - 63;
-        result |= (b & 0x1f) << shift;
-        shift += 5;
-      } while (b >= 0x20);
-      const dlat = result & 1 ? ~(result >> 1) : result >> 1;
-      lat += dlat;
-
-      shift = result = 0;
-      do {
-        b = encoded.charCodeAt(index++) - 63;
-        result |= (b & 0x1f) << shift;
-        shift += 5;
-      } while (b >= 0x20);
-      const dlng = result & 1 ? ~(result >> 1) : result >> 1;
-      lng += dlng;
-
-      points.push({ lat: lat / 1e5, lng: lng / 1e5 });
-    }
-    return points;
-  };
-  console.log("polylinePath", polylinePath);
 
   return (
     <Box sx={{ width: "100%" }}>
@@ -112,42 +93,48 @@ const GoogleMapView: React.FC = () => {
           flexDirection: width < 768 ? "column" : "row",
           justifyContent: "center",
           alignItems: "center",
-          // flexDirection: "column",
           gap: 2,
           mb: 4,
         }}
       >
-        <Box>
-          {/* <p>Origem:</p> */}
-          <BaseInput
-            label={"Origem"}
-            value={origin}
-            onChange={(e) => setOrigin(e.target.value)}
-            placeholder="Digite um ponto de partida"
-          />
-        </Box>
-        <Box>
-          {/* <p>Destino:</p> */}
-          <BaseInput
-            label={"Destino"}
-            value={destination}
-            onChange={(e) => setDestination(e.target.value)}
-            placeholder="Digite destino"
-          />
-        </Box>
+        <BaseInput
+          label={"Origem"}
+          value={origin}
+          onChange={(e) => setOrigin(e.target.value)}
+          placeholder="Porto Alegre, RS"
+        />
+        <BaseInput
+          label={"Destino"}
+          value={destination}
+          onChange={(e) => setDestination(e.target.value)}
+          placeholder="Novo Hamburgo, RS"
+        />
         <BaseButton
           disabled={loading}
           sx={{ maxHeight: 32 }}
-          onClick={sendOriginDestination}
+          onClick={handleCalculateRoute}
         >
           Calcular Rota
         </BaseButton>
       </Box>
+      {rideDuration && distanceKm && (
+        <Box display={"flex"} justifyContent={"center"} gap={4}>
+          <Typography>
+            Tempo de deslocamento: <strong>{rideDuration}</strong>
+          </Typography>
+          <Typography>
+            Distância: <strong>{distanceKm}</strong>
+          </Typography>
+        </Box>
+      )}
       {isLoaded && (
         <GoogleMap
-          center={{ lat: -30.0277, lng: -51.2287 }}
+          center={mapCenter}
           zoom={10}
           mapContainerStyle={{ height: "60vh", width: "100%" }}
+          onLoad={(map) => {
+            mapRef.current = map;
+          }}
         >
           {polylinePath && <Polyline path={polylinePath} />}
         </GoogleMap>
