@@ -1,15 +1,27 @@
 import React, { useState } from "react";
-import axios from "axios";
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import { Box, Typography } from "@mui/material";
 import { GoogleMap, Polyline, useLoadScript } from "@react-google-maps/api";
+
 import BaseButton from "../components/BaseButton";
-import { Box, InputBase } from "@mui/material";
+import BaseInput from "../components/BaseInput";
+import useWindowSize from "../hooks/useSizeObserver";
+
+import Api from "../services/axiosConfig";
 
 const GoogleMapView: React.FC = () => {
   const [origin, setOrigin] = useState<string>("Porto Alegre, RS");
   const [destination, setDestination] = useState<string>("Novo Hamburgo, RS");
+  const [loading, setLoading] = useState<boolean>(false);
   const [polylinePath, setPolylinePath] = useState<
     { lat: number; lng: number }[] | null
   >(null);
+
+  const { width } = useWindowSize();
+  const { currentUser } = useSelector(
+    (rootReducer: any) => rootReducer.userReducer
+  );
 
   const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
   const API_URL = import.meta.env.VITE_API_URL;
@@ -19,25 +31,36 @@ const GoogleMapView: React.FC = () => {
   });
 
   const sendOriginDestination = async () => {
-    // const;
+    setPolylinePath(null);
+
+    if (!currentUser) {
+      return toast.warning("Antes de calcular, faça o login por favor!");
+    }
+
+    setLoading(true);
+
+    const requestBody = {
+      origin,
+      destination,
+    };
+
     try {
-      const response = await axios.post(API_URL, {
-        params: {
-          origin,
-          destination,
-          mode: "driving",
-        },
-      });
+      const response = await Api.post(`${API_URL}/ride/estimate`, requestBody);
 
       if (response.data.status === "OK") {
         const polyline = response.data.routes[0].overview_polyline.points;
+        console.log(polyline);
+
         const path = decodePolyline(polyline); // Decodifica a polilinha
         setPolylinePath(path);
+        setLoading(false);
       } else {
         alert(`Erro: ${response.data.error_message}`);
       }
     } catch (error) {
       console.error("Erro ao calcular rota:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -77,47 +100,54 @@ const GoogleMapView: React.FC = () => {
 
   return (
     <Box sx={{ width: "100%" }}>
-      <h1>Mapa de Rotas</h1>
+      <Typography textAlign={"center"} fontSize={32} m={4}>
+        Mapa de Rotas
+      </Typography>
       <Box
+        bgcolor={"white"}
+        p={2}
+        borderRadius={1}
         sx={{
           display: "flex",
-          flexDirection: "column",
+          flexDirection: width < 768 ? "column" : "row",
+          justifyContent: "center",
+          alignItems: "center",
+          // flexDirection: "column",
           gap: 2,
           mb: 4,
         }}
       >
         <Box>
-          <p>Origem:</p>
-          <InputBase
+          {/* <p>Origem:</p> */}
+          <BaseInput
+            label={"Origem"}
             value={origin}
             onChange={(e) => setOrigin(e.target.value)}
             placeholder="Digite um ponto de partida"
-            sx={{
-              backgroundColor: "#f0f0f0",
-              borderRadius: "5px",
-            }}
           />
         </Box>
         <Box>
-          <p>Destino:</p>
-          <InputBase
+          {/* <p>Destino:</p> */}
+          <BaseInput
+            label={"Destino"}
             value={destination}
             onChange={(e) => setDestination(e.target.value)}
             placeholder="Digite destino"
-            sx={{
-              backgroundColor: "#f0f0f0",
-              borderRadius: "5px",
-              paddingInline: 1,
-            }}
           />
         </Box>
-        <BaseButton onClick={sendOriginDestination}>Calcular Rota</BaseButton>
+        <BaseButton
+          disabled={loading}
+          sx={{ maxHeight: 32 }}
+          onClick={sendOriginDestination}
+        >
+          Calcular Rota
+        </BaseButton>
       </Box>
       {isLoaded && (
         <GoogleMap
           center={{ lat: -30.0277, lng: -51.2287 }}
           zoom={10}
-          mapContainerStyle={{ height: "400px", width: "100%" }}
+          mapContainerStyle={{ height: "60vh", width: "100%" }}
         >
           {polylinePath && <Polyline path={polylinePath} />}
         </GoogleMap>

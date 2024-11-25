@@ -1,14 +1,22 @@
 import { Request, Response } from "express";
+import { getRouteDetails } from "../utils/googleApi";
 import { calculateRide } from "../services/rideService";
 
-export const getCalculateRide = (req: Request, res: Response) => {
+export const getCalculateRide = async (req: Request, res: Response) => {
   const { customer_id, origin, destination } = req.body;
   // if (!customer_id || !origin || !destination) {
   //   throw new Error("All fields must be filled");
   // }
+  console.log("BODY", req.body);
 
   try {
-    const calculate = calculateRide();
+    // const calculate = calculateRide();
+    // const calculateServiceRode = await calculateRide();
+    // console.log("calculateServiceRode", calculateServiceRode);
+
+    const calculate = await getRouteDetails(origin, destination);
+    console.log("calculate", calculate);
+
     res.status(200).json(calculate);
     // calculateRoute(customer_id, origin, destination);
   } catch (error) {

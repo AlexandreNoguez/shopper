@@ -8,6 +8,7 @@ export const getRouteDetails = async (origin: string, destination: string) => {
   if (!GOOGLE_API_KEY) {
     throw new Error("Google API key is not set in environment variables.");
   }
+  console.log("body", origin, destination);
 
   try {
     // Enviar a requisição para a API do Google
@@ -15,6 +16,7 @@ export const getRouteDetails = async (origin: string, destination: string) => {
       params: {
         origin,
         destination,
+        mode: "driving",
         key: GOOGLE_API_KEY,
       },
     });

@@ -118,6 +118,9 @@ function Header() {
             <MenuItem onClick={handleMenuClose} component={Link} to="/viagens">
               Viagens
             </MenuItem>
+            <MenuItem onClick={handleMenuClose} component={Link} to="/busca">
+              Histórico
+            </MenuItem>
           </Menu>
         </Toolbar>
       </AppBar>
