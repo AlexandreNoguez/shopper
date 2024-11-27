@@ -3,12 +3,16 @@ import {
   GOOGLE_API_KEY,
   GOOGLE_DIRECTIONS_URL,
 } from "../constants/googleConfig";
+import { areCoordinatesEqual } from "./compareFunctions";
 
 export const getRouteDetails = async (origin: string, destination: string) => {
   if (!GOOGLE_API_KEY) {
     throw new Error("Google API key is not set in environment variables.");
   }
-  console.log("body", origin, destination);
+
+  if (!origin || !destination) {
+    throw new Error(`Origin and destination must be provided`);
+  }
 
   try {
     // Enviar a requisição para a API do Google
@@ -20,14 +24,11 @@ export const getRouteDetails = async (origin: string, destination: string) => {
         key: GOOGLE_API_KEY,
       },
     });
+    const startLocation = response.data.routes[0].legs[0].start_location;
+    const endLocation = response.data.routes[0].legs[0].end_location;
+    const areLocationsEqual = areCoordinatesEqual(startLocation, endLocation);
 
-    if (response.status !== 200 || !response.data.routes.length) {
-      throw new Error(
-        "No route found or invalid response from Google Maps API."
-      );
-    }
-
-    return response.data;
+    return { data: response.data, areLocationsEqual };
   } catch (error: any) {
     throw new Error(`Error fetching route details: ${error.message}`);
   }

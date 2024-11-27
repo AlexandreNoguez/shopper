@@ -1,37 +1,31 @@
-import axios from "axios";
-import {
-  GOOGLE_API_KEY,
-  GOOGLE_DIRECTIONS_URL,
-} from "../constants/googleConfig";
+import { getDriversByMinKm } from "../repositories/driverRepository";
+import { getRouteDetails } from "../utils/googleApi";
 
-export const getRouteDetails = async (origin: string, destination: string) => {
-  if (!GOOGLE_API_KEY) {
-    throw new Error("Google API key is not set in environment variables.");
+export const calculateRideDetails = async (
+  startLocation: string,
+  endLocation: string
+) => {
+  const routeDetails = await getRouteDetails(startLocation, endLocation);
+
+  if (routeDetails.areLocationsEqual) {
+    throw new Error("Origem e destino devem ser diferentes!");
   }
 
-  if (!origin || !destination) {
-    throw new Error(`Origin and destination must be provided`);
-  }
+  const origin = routeDetails.data.routes[0].legs[0].start_location;
+  const destination = routeDetails.data.routes[0].legs[0].end_location;
+  const distance = routeDetails.data.routes[0].legs[0].distance;
+  const duration = routeDetails.data.routes[0].legs[0].duration;
 
-  try {
-    // Enviar a requisição para a API do Google
-    const response = await axios.get(GOOGLE_DIRECTIONS_URL, {
-      params: {
-        origin,
-        destination,
-        mode: "driving",
-        key: GOOGLE_API_KEY,
-      },
-    });
+  const distanceInKm = distance.value / 1000;
 
-    if (response.status !== 200 || !response.data.routes.length) {
-      throw new Error(
-        "No route found or invalid response from Google Maps API."
-      );
-    }
+  const drivers = await getDriversByMinKm(distanceInKm);
 
-    return response.data;
-  } catch (error: any) {
-    throw new Error(`Error fetching route details: ${error.message}`);
-  }
+  return {
+    origin,
+    destination,
+    distance,
+    duration,
+    options: drivers,
+    routeResponse: routeDetails.data,
+  };
 };

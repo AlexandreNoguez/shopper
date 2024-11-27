@@ -6,9 +6,12 @@ services:
     env_file:
       - .env
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      # POSTGRES_USER: ${POSTGRES_USER}
+      # POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      # POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: my_database
     ports:
       - "5432:5432"
     volumes:
@@ -16,7 +19,7 @@ services:
 
   server:
     build:
-      context: server
+      context: ./server
       dockerfile: Dockerfile
     container_name: server_service
     restart: always
@@ -30,12 +33,13 @@ services:
       - "8080:8080"
     depends_on:
       - postgres
-    volumes:
-      - ./server/src:/app/src
+    volumes: 
+      - ./server:/app
+
 
   client:
     build:
-      context: client
+      context: ./client
       dockerfile: Dockerfile
     container_name: client_service
     restart: always
@@ -43,10 +47,11 @@ services:
       - .env
     environment:
       VITE_API_URL: ${VITE_API_URL}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY}
     ports:
       - "80:80"
     depends_on:
       - server
 
 volumes:
-  postgres_data:
+  postgres_data: {}

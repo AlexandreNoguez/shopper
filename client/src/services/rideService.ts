@@ -1,6 +1,7 @@
 import { decode } from "@googlemaps/polyline-codec";
 import Api from "./axiosConfig";
 import { AxiosError } from "axios";
+import { toast } from "react-toastify";
 
 interface RideEstimateRequest {
   customer_id: number;
@@ -25,23 +26,24 @@ export const getRideEstimate = async (
   try {
     const { data } = await Api.post("/ride/estimate", request);
 
-    if (data.status === "OK") {
-      const polyline = data.routes[0].overview_polyline.points;
+    if (data.routeResponse.status === "OK") {
+      const polyline = data.routeResponse.routes[0].overview_polyline.points;
       const decodedPath = decode(polyline).map(([lat, lng]) => ({
         lat,
         lng,
       }));
 
       return {
-        distance: data.routes[0].legs[0].distance.text,
-        duration: data.routes[0].legs[0].duration.text,
         path: decodedPath,
+        distance: data.distance.text,
+        duration: data.duration.text,
       };
     } else {
       throw new Error(data.error_message || "Erro desconhecido na API");
     }
   } catch (error) {
     if (error instanceof AxiosError) {
+      toast.error(error.response?.data.message);
       console.error("Erro ao calcular rota:", error);
       throw new Error(`Erro na API: ${error.message}`);
     }

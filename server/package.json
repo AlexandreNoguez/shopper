@@ -6,7 +6,12 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsx watch src/server.ts",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
   },
   "module": "",
   "author": "",
@@ -25,7 +30,7 @@
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
-    "@types/node": "^22.9.1",
+    "@types/node": "^22.9.4",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.7.2"

@@ -1,40 +1,41 @@
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  // url      = env("DATABASE_URL")
+  url      = "postgresql://user:password@localhost:5432/my_database"
 }
 
 generator client {
-  provider        = "prisma-client-js"
-  binaryTargets   = ["native", "debian-openssl-3.0.x"]
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
 model Car {
-  id          Int       @id @default(autoincrement())
+  id          Int     @id @default(autoincrement())
   brand       String
   model       String
   year        Int
   description String?
-  drivers     Driver[]
+  Driver      Driver?
 
   @@map("car")
 }
 
 model Driver {
-  id             Int      @id @default(autoincrement())
-  name           String
-  description    String?
-  car            Car      @relation(fields: [carId], references: [id])
-  carId          Int
-  ratePerKm      Float
-  minKm          Float
-  rides          Ride[]
-  reviews        Review[]
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  carId       Int      @unique
+  car         Car?     @relation(fields: [carId], references: [id])
+  ratePerKm   Float
+  minKm       Float
+  rides       Ride[]
+  reviews     Review[]
 
   @@map("driver")
 }
 
 model User {
-  id      Int     @id @default(autoincrement())
+  id      Int      @id @default(autoincrement())
   name    String
   rides   Ride[]
   reviews Review[]
@@ -43,29 +44,29 @@ model User {
 }
 
 model Ride {
-  id           Int      @id @default(autoincrement())
-  user         User     @relation(fields: [userId], references: [id])
-  userId       Int
-  driver       Driver   @relation(fields: [driverId], references: [id])
-  driverId     Int
-  origin       String
-  destination  String
-  distance     String
-  duration     String
-  date         DateTime
+  id          Int      @id @default(autoincrement())
+  user        User     @relation(fields: [userId], references: [id])
+  userId      Int
+  driver      Driver   @relation(fields: [driverId], references: [id])
+  driverId    Int
+  origin      String
+  destination String
+  distance    String
+  duration    String
+  date        DateTime
 
   @@map("ride")
 }
 
 model Review {
-  id           Int      @id @default(autoincrement())
-  description  String?
-  rating       Float
-  user         User     @relation(fields: [userId], references: [id])
-  userId       Int
-  driver       Driver   @relation(fields: [driverId], references: [id])
-  driverId     Int
-  date         DateTime
+  id          Int      @id @default(autoincrement())
+  description String?
+  rating      Float
+  user        User     @relation(fields: [userId], references: [id])
+  userId      Int
+  driver      Driver   @relation(fields: [driverId], references: [id])
+  driverId    Int
+  date        DateTime
 
   @@map("review")
 }

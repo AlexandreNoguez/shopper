@@ -1,25 +1,29 @@
 import { Request, Response } from "express";
-import { getRouteDetails } from "../services/rideService";
+import { calculateRideDetails } from "../services/rideService";
 
 export const getCalculateRide = async (req: Request, res: Response) => {
-  const { customer_id, origin, destination } = req.body;
-  if (!customer_id || !origin || !destination) {
+  const {
+    customer_id,
+    origin: startLocation,
+    destination: endLocation,
+  } = req.body;
+
+  if (!customer_id || !startLocation || !endLocation) {
     return res.status(400).json({ message: "All fields must be filled" });
   }
 
-  if (origin === destination) {
-    return res
-      .status(400)
-      .json({ message: "Origin and destination must be different" });
-  }
-
   try {
-    const calculate = await getRouteDetails(origin, destination);
+    const rideDetails = await calculateRideDetails(startLocation, endLocation);
 
-    return res.status(200).json(calculate);
-  } catch (error) {
+    return res.status(200).json(rideDetails);
+  } catch (error: any) {
     console.error(error);
-    return res.status(500).json(error);
+
+    if (error.message === "Origem e destino devem ser diferentes!") {
+      return res.status(400).json({ message: error.message });
+    }
+
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
 

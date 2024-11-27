@@ -1,4 +1,4 @@
-export const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY || "";
+export const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 
 // Base URL da API de rotas do Google
 export const GOOGLE_DIRECTIONS_URL = `https://maps.googleapis.com/maps/api/directions/json?`;

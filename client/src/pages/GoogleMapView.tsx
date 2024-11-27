@@ -63,17 +63,18 @@ const GoogleMapView: React.FC = () => {
       setRideDuration(result.duration);
       setPolylinePath(result.path);
 
-      if (result.path.length > 0) {
-        setMapCenter(result.path[0]); // Define o centro como o primeiro ponto da rota
-      }
-
       if (mapRef.current && result.path.length > 0) {
         const bounds = new google.maps.LatLngBounds();
         result.path.forEach((point) => bounds.extend(point));
         mapRef.current.fitBounds(bounds);
+        setMapCenter(result.path[0]);
       }
     } catch (error: any) {
-      toast.error(error.message || "Erro ao calcular rota. Tente novamente.");
+      console.log(error);
+      toast.error(
+        error.message || "Erro ao calcular rota. Tente novamente."
+      );
+
     } finally {
       setLoading(false);
     }
