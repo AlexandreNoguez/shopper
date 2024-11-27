@@ -27,6 +27,11 @@ const userReducer = (state: UserState = initialState, action: UserAction) => {
         currentUser: null,
         id: newId,
       };
+    case UserActionsTypes.UPDATE:
+      return {
+        ...state,
+        id: action.payload,
+      };
     default:
       return state;
   }

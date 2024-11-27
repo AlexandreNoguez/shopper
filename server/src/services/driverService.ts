@@ -1,9 +1,14 @@
-import prisma from "../prisma/client";
+import { fetchDriversFromDatabase } from "../repositories/driverRepository";
 
-export const getAll = async () => {
-  prisma.driver.findMany({
-    include: {
-      car: true, // Inclui os dados do carro relacionado
-    },
-  });
+/**
+ * Serviço para buscar todos os motoristas.
+ */
+export const fetchAllDrivers = async () => {
+  try {
+    // Busca os motoristas do repositório
+    return await fetchDriversFromDatabase();
+  } catch (error) {
+    console.error("Error in driver service:", error);
+    throw new Error("Failed to fetch drivers");
+  }
 };

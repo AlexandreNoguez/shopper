@@ -1,5 +1,9 @@
 import { Request, Response } from "express";
-import { calculateRideDetails, saveRide } from "../services/rideService";
+import {
+  calculateRideDetails,
+  getRidesByCustomer,
+  saveRide,
+} from "../services/rideService";
 
 export const getCalculateRide = async (req: Request, res: Response) => {
   const {
@@ -84,4 +88,40 @@ export const getRides = (req: Request, res: Response) => {
     return res.status(400).send("Driver ID is required");
   }
   res.send(`Customer ID: ${customerId}, Driver ID: ${driverId}`);
+};
+
+export const getUserRides = async (req: Request, res: Response) => {
+  const { customer_id } = req.params;
+  const { driver_id } = req.query;
+  console.log(req.body);
+
+  // Validações
+  if (!customer_id) {
+    return res
+      .status(400)
+      .json({ message: "O id do usuário não pode estar em branco." });
+  }
+
+  if (driver_id && isNaN(Number(driver_id))) {
+    return res
+      .status(400)
+      .json({ message: "O id do motorista precisa ser um número válido." });
+  }
+
+  try {
+    const rides = await getRidesByCustomer(
+      Number(customer_id),
+      Number(driver_id)
+    );
+
+    return res.status(200).json({
+      customer_id,
+      rides,
+    });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ message: "Erro ao buscar as viagens do usuário.", error });
+  }
 };

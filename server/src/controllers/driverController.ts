@@ -1,12 +1,18 @@
 import { Request, Response } from "express";
-import { getAll } from "../services/driverService";
+import { fetchAllDrivers } from "../services/driverService";
 
-export const getAllDrivers = async (req: Request, res: Response) => {
+/**
+ * Controlador para listar todos os motoristas.
+ */
+export const listDrivers = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
-    // Busca todos os motoristas na tabela Driver
-    const drivers = await getAll();
+    // Busca todos os motoristas usando o serviço
+    const drivers = await fetchAllDrivers();
 
-    // Retorna os motoristas em formato JSON
+    // Retorna os motoristas no formato JSON
     res.status(200).json(drivers);
   } catch (error) {
     console.error("Error fetching drivers:", error);

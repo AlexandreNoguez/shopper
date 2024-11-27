@@ -14,7 +14,11 @@ function App() {
       <Header />
       <Container maxWidth={"xl"}>
         <AppRoutes />
-        <ToastContainer />
+        <ToastContainer
+          position="bottom-right"
+          draggable
+          style={{ userSelect: "none" }}
+        />
       </Container>
     </>
   );

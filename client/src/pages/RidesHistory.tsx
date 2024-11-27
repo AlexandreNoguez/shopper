@@ -10,58 +10,40 @@ import {
   Paper,
 } from "@mui/material";
 import { useSelector } from "react-redux";
-import axios from "axios";
+import { getUserRides } from "../services/rideService";
+import { formatDistance } from "../helpers/formatString";
 
 interface Trip {
   id: number;
   origin: string;
   destination: string;
-  driverName: string;
+  driver: {
+    id: number;
+    name: string;
+  };
   date: string;
-  distance: string;
+  distance: number;
+  duration: string;
+  value: number;
 }
 
 const RidesHistory: React.FC = () => {
-  const { currentUser } = useSelector((state: any) => state.userReducer || {});
-  const [rides, setRides] = useState<Trip[]>([
-    {
-      id: 1,
-      origin: "Porto Alegre, RS",
-      destination: "Novo Hamburgo, RS",
-      driverName: "João Silva",
-      date: "2024-11-20T14:00:00.000Z",
-      distance: "30 km",
-    },
-    {
-      id: 2,
-      origin: "São Paulo, SP",
-      destination: "Campinas, SP",
-      driverName: "Maria Oliveira",
-      date: "2024-11-18T09:00:00.000Z",
-      distance: "100 km",
-    },
-  ]);
+  const { id, currentUser } = useSelector(
+    (state: any) => state.userReducer || {}
+  );
+  const [rides, setRides] = useState<Trip[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
+  const getRidesByUserId = async () => {
+    setLoading(true);
+    const response = await getUserRides(id);
+    setLoading(false);
+    setRides(response.rides);
+  };
   useEffect(() => {
-    const fetchTrips = async () => {
-      try {
-        if (!currentUser?.id) return;
-
-        // Substitua pela sua API
-        const response = await axios.get(
-          `/api/trips/history/${currentUser.id}`
-        );
-        setRides(response.data.trips);
-      } catch (error) {
-        console.error("Erro ao buscar histórico de viagens:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTrips();
+    getRidesByUserId();
   }, [currentUser]);
+  console.log(rides);
 
   return (
     <Box sx={{ padding: 4 }}>
@@ -106,11 +88,11 @@ const RidesHistory: React.FC = () => {
                   <TableCell>{ride.id}</TableCell>
                   <TableCell>{ride.origin}</TableCell>
                   <TableCell>{ride.destination}</TableCell>
-                  <TableCell>{ride.driverName}</TableCell>
+                  <TableCell>{ride.driver.name}</TableCell>
                   <TableCell>
                     {new Date(ride.date).toLocaleDateString()}
                   </TableCell>
-                  <TableCell>{ride.distance}</TableCell>
+                  <TableCell>{formatDistance(ride.distance)}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

@@ -26,3 +26,32 @@ export const saveRideToDatabase = async (rideData: RideData) => {
 
   return ride;
 };
+
+export const getRidesFromDatabase = async (
+  customerId: number,
+  driverId?: number
+) => {
+  return await prisma.ride.findMany({
+    where: {
+      userId: customerId,
+      ...(driverId && { driverId }),
+    },
+    orderBy: {
+      date: "desc",
+    },
+    select: {
+      id: true,
+      date: true,
+      origin: true,
+      destination: true,
+      distance: true,
+      duration: true,
+      driver: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
+  });
+};

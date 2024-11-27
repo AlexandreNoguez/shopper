@@ -1,6 +1,19 @@
 import { getDriversByMinKm } from "../repositories/driverRepository";
-import { saveRideToDatabase } from "../repositories/rideRepository";
+import {
+  getRidesFromDatabase,
+  saveRideToDatabase,
+} from "../repositories/rideRepository";
 import { getRouteDetails } from "../utils/googleApi";
+
+interface RideData {
+  customer_id: number;
+  origin: string;
+  destination: string;
+  distance: number; // Em metros
+  duration: string;
+  driver_id: number;
+  value: number; // Em reais
+}
 
 export const calculateRideDetails = async (
   startLocation: string,
@@ -21,37 +34,27 @@ export const calculateRideDetails = async (
 
   const drivers = await getDriversByMinKm(distanceInKm);
 
-   const driversWithCost = drivers.map((driver) => {
-     const estimatedCost =
-       distanceInKm >= driver.minKm
-         ? (distanceInKm * driver.ratePerKm).toFixed(2)
-         : null;
+  const driversWithCost = drivers.map((driver) => {
+    const estimatedCost =
+      distanceInKm >= driver.minKm
+        ? (distanceInKm * driver.ratePerKm).toFixed(2)
+        : null;
 
-     return {
-       ...driver,
-       estimatedCost, // Inclui o custo calculado no retorno
-     };
-   });
+    return {
+      ...driver,
+      estimatedCost, // Inclui o custo calculado no retorno
+    };
+  });
 
-   return {
-     origin,
-     destination,
-     distance,
-     duration,
-     options: driversWithCost,
-     routeResponse: routeDetails.data,
-   };
+  return {
+    origin,
+    destination,
+    distance,
+    duration,
+    options: driversWithCost,
+    routeResponse: routeDetails.data,
+  };
 };
-
-interface RideData {
-  customer_id: number;
-  origin: string;
-  destination: string;
-  distance: number; // Em metros
-  duration: string;
-  driver_id: number;
-  value: number; // Em reais
-}
 
 export const saveRide = async (rideData: RideData) => {
   // Validações de regras de negócio podem ser adicionadas aqui
@@ -62,4 +65,12 @@ export const saveRide = async (rideData: RideData) => {
   // Formata e salva no banco através do repository
   const savedRide = await saveRideToDatabase(rideData);
   return savedRide;
+};
+
+export const getRidesByCustomer = async (
+  customerId: number,
+  driverId?: number
+) => {
+  // Chama o repositório para buscar as viagens
+  return await getRidesFromDatabase(customerId, driverId);
 };

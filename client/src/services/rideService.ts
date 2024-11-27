@@ -39,6 +39,23 @@ export interface DistanceDuration {
   value: number;
 }
 
+export interface RideResponse {
+  customer_id: string;
+  rides: {
+    id: number;
+    date: string;
+    origin: string;
+    destination: string;
+    distance: number;
+    duration: string;
+    driver: {
+      id: number;
+      name: string;
+    };
+    value: number;
+  }[];
+}
+
 export const getRideEstimate = async (
   request: RideEstimateRequest
 ): Promise<RideEstimateResponse> => {
@@ -82,6 +99,24 @@ export const saveUserRide = async (rideData: Ride) => {
     if (error instanceof AxiosError) {
       toast.error(error.response?.data.message);
       console.error("Erro ao salvar corrida:", error);
+      throw new Error(`Erro na API: ${error.message}`);
+    }
+    throw error;
+  }
+};
+
+export const getUserRides = async (
+  customerId: number,
+  driverId?: number
+): Promise<RideResponse> => {
+  try {
+    const queryParam = driverId ? `?driver_id=${driverId}` : "";
+    const response = await Api.get(`/ride/${customerId}${queryParam}`);
+    return response.data;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      toast.error(error.response?.data.message || "Erro ao buscar viagens.");
+      console.error("Erro ao buscar viagens:", error);
       throw new Error(`Erro na API: ${error.message}`);
     }
     throw error;
