@@ -51,7 +51,6 @@ export const getRideEstimate = async (
         lat,
         lng,
       }));
-      console.log(data);
 
       return {
         path: decodedPath,

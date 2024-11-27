@@ -64,7 +64,9 @@ export const confirmRide = async (req: Request, res: Response) => {
     });
 
     // Retorna a resposta de sucesso com os dados da viagem
-    return res.status(201).json({ message: "Ride confirmed!", ride });
+    return res
+      .status(201)
+      .json({ message: "Operação realizada com sucesso!", ride });
   } catch (error: any) {
     console.error(error);
     return res.status(500).json({
