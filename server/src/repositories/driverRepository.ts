@@ -7,5 +7,8 @@ export const getDriversByMinKm = async (distanceInKm: number) => {
         lt: distanceInKm,
       },
     },
+    orderBy: {
+      ratePerKm: "asc",
+    },
   });
 };

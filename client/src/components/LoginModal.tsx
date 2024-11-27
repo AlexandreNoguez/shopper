@@ -11,6 +11,7 @@ import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 
 import { loginUser } from "../redux/user/actions";
+import { saveUser } from "../services/userService";
 
 interface PokemonTrainerModalProps {
   open: boolean;
@@ -31,6 +32,8 @@ const PokemonTrainerModal: React.FC<PokemonTrainerModalProps> = ({
       toast.warning("O campo não pode estar em branco");
       return;
     }
+
+    saveUser({ name: loggedUser });
 
     dispatch(loginUser(loggedUser));
     setOpen(false);

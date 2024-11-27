@@ -7,20 +7,63 @@ import { GoogleMap, Polyline, useLoadScript } from "@react-google-maps/api";
 import BaseButton from "../components/BaseButton";
 import BaseInput from "../components/BaseInput";
 import useWindowSize from "../hooks/useSizeObserver";
-import { getRideEstimate } from "../services/rideService";
+import {
+  DistanceDuration,
+  Driver,
+  getRideEstimate,
+  saveUserRide,
+} from "../services/rideService";
+import FloatingRideDetails from "../components/FloatingRideDetails";
+import { validateRideData } from "../helpers/handleErrors";
 
-interface LatLng {
+export interface LatLng {
   lat: number;
   lng: number;
+}
+
+export interface SelectedDriver {
+  id: number;
+  name: string;
+  value?: number | null;
+}
+
+export interface Ride {
+  customer_id: string;
+  origin: string;
+  destination: string;
+  distance: number;
+  duration: string;
+  driver: SelectedDriver;
+  value: number;
 }
 
 const GoogleMapView: React.FC = () => {
   const [origin, setOrigin] = useState<string>("Porto Alegre, RS");
   const [destination, setDestination] = useState<string>("Novo Hamburgo, RS");
-  const [distanceKm, setDistanceKm] = useState<string>("");
-  const [rideDuration, setRideDuration] = useState<string>("");
+  const [startLocation, setStartLocation] = useState<LatLng>();
+  const [endLocation, setEndLocation] = useState<LatLng>();
+  const [drivers, setDrivers] = useState<Driver[] | null>();
   const [loading, setLoading] = useState<boolean>(false);
   const [polylinePath, setPolylinePath] = useState<LatLng[] | null>(null);
+  const [showRideDetails, setShowRideDetails] = useState<boolean>(false);
+  const [rideData, setRideData] = useState<Ride>({
+    customer_id: "",
+    origin: "",
+    destination: "",
+    distance: 0,
+    duration: "",
+    driver: { id: 0, name: "" },
+    value: 0,
+  });
+
+  const [distanceKm, setDistanceKm] = useState<DistanceDuration>({
+    text: "",
+    value: 0,
+  });
+  const [rideDuration, setRideDuration] = useState<DistanceDuration>({
+    text: "",
+    value: 0,
+  });
   const [mapCenter, setMapCenter] = useState<LatLng>({
     lat: -30.0277,
     lng: -51.2287,
@@ -41,6 +84,7 @@ const GoogleMapView: React.FC = () => {
 
   const handleCalculateRoute = async () => {
     setPolylinePath(null);
+    setShowRideDetails(true);
 
     if (!currentUser) {
       return toast.warning("Antes de calcular, faça o login por favor!");
@@ -62,6 +106,9 @@ const GoogleMapView: React.FC = () => {
       setDistanceKm(result.distance);
       setRideDuration(result.duration);
       setPolylinePath(result.path);
+      setStartLocation(result.origin);
+      setEndLocation(result.destination);
+      setDrivers(result.options);
 
       if (mapRef.current && result.path.length > 0) {
         const bounds = new google.maps.LatLngBounds();
@@ -71,13 +118,46 @@ const GoogleMapView: React.FC = () => {
       }
     } catch (error: any) {
       console.log(error);
-      toast.error(
-        error.message || "Erro ao calcular rota. Tente novamente."
-      );
-
+      toast.error(error.message || "Erro ao calcular rota. Tente novamente.");
     } finally {
       setLoading(false);
     }
+  };
+
+  const onSelectDriver = (selectedDriver: SelectedDriver) => {
+    if (!selectedDriver) {
+      return toast.warning("Selecione um motorista antes de confirmar!");
+    }
+    const rideDataToSave: Ride = {
+      customer_id: id,
+      origin: origin,
+      destination: destination,
+      distance: distanceKm.value,
+      duration: rideDuration.text,
+      driver: { id: selectedDriver.id, name: selectedDriver.name },
+      value: selectedDriver.value ?? 0, // Usa `0` como valor padrão para evitar o problema
+    };
+
+    setRideData(rideDataToSave);
+  };
+
+  const handleConfirmRide = async () => {
+    console.log("Viagem confirmada!");
+    console.log(rideData);
+
+    // No handleConfirmRide
+    const validationError = validateRideData(rideData);
+    if (validationError) {
+      return toast.warning(validationError);
+    } else {
+      await saveUserRide(rideData);
+    }
+    setShowRideDetails(false);
+  };
+
+  const handleCloseRideDetails = () => {
+    console.log("Detalhes da rota fechados");
+    setShowRideDetails(false);
   };
 
   return (
@@ -118,16 +198,7 @@ const GoogleMapView: React.FC = () => {
           Calcular Rota
         </BaseButton>
       </Box>
-      {rideDuration && distanceKm && (
-        <Box display={"flex"} justifyContent={"center"} gap={4}>
-          <Typography>
-            Tempo de deslocamento: <strong>{rideDuration}</strong>
-          </Typography>
-          <Typography>
-            Distância: <strong>{distanceKm}</strong>
-          </Typography>
-        </Box>
-      )}
+
       {isLoaded && (
         <GoogleMap
           center={mapCenter}
@@ -140,6 +211,18 @@ const GoogleMapView: React.FC = () => {
           {polylinePath && <Polyline path={polylinePath} />}
         </GoogleMap>
       )}
+      <FloatingRideDetails
+        visible={showRideDetails}
+        distance={distanceKm}
+        duration={rideDuration}
+        startLocation={startLocation}
+        endLocation={endLocation}
+        onConfirm={handleConfirmRide}
+        onSelectDriver={onSelectDriver}
+        onClose={handleCloseRideDetails}
+        drivers={drivers}
+        rideData={rideData}
+      />
     </Box>
   );
 };

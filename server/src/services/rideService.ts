@@ -1,4 +1,5 @@
 import { getDriversByMinKm } from "../repositories/driverRepository";
+import { saveRideToDatabase } from "../repositories/rideRepository";
 import { getRouteDetails } from "../utils/googleApi";
 
 export const calculateRideDetails = async (
@@ -20,12 +21,45 @@ export const calculateRideDetails = async (
 
   const drivers = await getDriversByMinKm(distanceInKm);
 
-  return {
-    origin,
-    destination,
-    distance,
-    duration,
-    options: drivers,
-    routeResponse: routeDetails.data,
-  };
+   const driversWithCost = drivers.map((driver) => {
+     const estimatedCost =
+       distanceInKm >= driver.minKm
+         ? (distanceInKm * driver.ratePerKm).toFixed(2)
+         : null;
+
+     return {
+       ...driver,
+       estimatedCost, // Inclui o custo calculado no retorno
+     };
+   });
+
+   return {
+     origin,
+     destination,
+     distance,
+     duration,
+     options: driversWithCost,
+     routeResponse: routeDetails.data,
+   };
+};
+
+interface RideData {
+  customer_id: number;
+  origin: string;
+  destination: string;
+  distance: number; // Em metros
+  duration: string;
+  driver_id: number;
+  value: number; // Em reais
+}
+
+export const saveRide = async (rideData: RideData) => {
+  // Validações de regras de negócio podem ser adicionadas aqui
+  if (rideData.distance < 1) {
+    throw new Error("The distance must be greater than zero.");
+  }
+
+  // Formata e salva no banco através do repository
+  const savedRide = await saveRideToDatabase(rideData);
+  return savedRide;
 };

@@ -5,8 +5,10 @@ interface UserState {
   currentUser: string | null;
 }
 
+// Recupera o `id` do localStorage ou usa `1` como valor padrão
+const savedId = localStorage.getItem("userId");
 const initialState: UserState = {
-  id: 1,
+  id: savedId ? parseInt(savedId, 10) : 1,
   currentUser: null,
 };
 
@@ -18,11 +20,12 @@ const userReducer = (state: UserState = initialState, action: UserAction) => {
         currentUser: action.payload,
       };
     case UserActionsTypes.LOGOUT:
-      const id = state.id + 1;
+      const newId = state.id + 1;
+      localStorage.setItem("userId", newId.toString()); // Atualiza o localStorage
       return {
         ...state,
         currentUser: null,
-        id: id,
+        id: newId,
       };
     default:
       return state;
