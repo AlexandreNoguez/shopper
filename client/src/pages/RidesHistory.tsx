@@ -43,7 +43,6 @@ const RidesHistory: React.FC = () => {
   useEffect(() => {
     getRidesByUserId();
   }, [currentUser]);
-  console.log(rides);
 
   return (
     <Box sx={{ padding: 4 }}>

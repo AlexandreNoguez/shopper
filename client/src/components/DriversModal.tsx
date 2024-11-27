@@ -7,6 +7,7 @@ import {
   CardContent,
   Button,
 } from "@mui/material";
+import { SelectedDriver } from "../pages/GoogleMapView";
 
 interface Driver {
   id: number;
@@ -20,7 +21,7 @@ interface Driver {
 
 interface DriversModalProps {
   open: boolean;
-  onSelectDriver: (driver: object) => void;
+  onSelectDriver: (driver: SelectedDriver) => void;
   onClose: () => void;
   drivers?: Driver[] | null;
 }

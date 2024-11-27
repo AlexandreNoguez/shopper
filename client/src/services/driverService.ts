@@ -3,7 +3,7 @@ import Api from "./axiosConfig";
 
 export const getDrivers = async () => {
   try {
-    const { data } = await Api.get("/driver");
+    await Api.get("/driver");
   } catch (error) {
     if (error instanceof AxiosError) {
       console.error("Erro ao calcular rota:", error);

@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useState } from "react";
+import React, { useState } from "react";
 import { Box, Typography, Button, Paper } from "@mui/material";
 import { Slide } from "react-awesome-reveal";
 import { LatLng, Ride, SelectedDriver } from "../pages/GoogleMapView";
@@ -14,9 +14,8 @@ interface FloatingRideDetailsProps {
   visible: boolean;
   rideData: Ride;
   onConfirm: () => void;
-  onSelectDriver: (driver: object) => void;
+  onSelectDriver: (driver: SelectedDriver) => void;
   onClose: () => void;
-  setDriver: Dispatch<SetStateAction<SelectedDriver | null>>;
 }
 
 const FloatingRideDetails: React.FC<FloatingRideDetailsProps> = ({

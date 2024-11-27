@@ -117,7 +117,7 @@ const GoogleMapView: React.FC = () => {
         setMapCenter(result.path[0]);
       }
     } catch (error: any) {
-      console.log(error);
+      console.error(error);
       toast.error(error.message || "Erro ao calcular rota. Tente novamente.");
     } finally {
       setLoading(false);
@@ -142,10 +142,6 @@ const GoogleMapView: React.FC = () => {
   };
 
   const handleConfirmRide = async () => {
-    console.log("Viagem confirmada!");
-    console.log(rideData);
-
-    // No handleConfirmRide
     const validationError = validateRideData(rideData);
     if (validationError) {
       return toast.warning(validationError);
@@ -156,7 +152,6 @@ const GoogleMapView: React.FC = () => {
   };
 
   const handleCloseRideDetails = () => {
-    console.log("Detalhes da rota fechados");
     setShowRideDetails(false);
   };
 

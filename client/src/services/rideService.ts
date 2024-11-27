@@ -92,8 +92,7 @@ export const getRideEstimate = async (
 
 export const saveUserRide = async (rideData: Ride) => {
   try {
-    const response = await Api.patch("/ride/confirm", rideData);
-    console.log(response);
+    await Api.patch("/ride/confirm", rideData);
     toast.success("Operação realizada com sucesso");
   } catch (error) {
     if (error instanceof AxiosError) {

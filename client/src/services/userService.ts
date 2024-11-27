@@ -8,8 +8,7 @@ interface User {
 
 export const saveUser = async (userData: User) => {
   try {
-    const response = await Api.post("/user", userData);
-    console.log(response);
+    await Api.post("/user", userData);
     toast.success("Cadastro realizado com sucesso");
   } catch (error) {
     if (error instanceof AxiosError) {

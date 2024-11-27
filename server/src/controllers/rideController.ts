@@ -93,7 +93,6 @@ export const getRides = (req: Request, res: Response) => {
 export const getUserRides = async (req: Request, res: Response) => {
   const { customer_id } = req.params;
   const { driver_id } = req.query;
-  console.log(req.body);
 
   // Validações
   if (!customer_id) {

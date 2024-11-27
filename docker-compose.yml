@@ -54,4 +54,4 @@ services:
       - server
 
 volumes:
-  postgres_data: {}
+  postgres_data:
