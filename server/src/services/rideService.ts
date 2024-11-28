@@ -5,7 +5,7 @@ import {
 } from "../repositories/rideRepository";
 import { getRouteDetails } from "../utils/googleApi";
 
-interface RideData {
+export interface RideData {
   customer_id: number;
   origin: string;
   destination: string;

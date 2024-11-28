@@ -47,8 +47,10 @@ const RidesHistory: React.FC = () => {
   const fetchRides = async () => {
     setLoading(true);
     try {
-      const response = await getUserRides();
-      setRides(response);
+      const response = await getUserRides(loggedInUserId);
+      console.log(response);
+
+      setRides(response.rides);
     } catch (error) {
       console.error("Erro ao buscar viagens:", error);
     } finally {
@@ -69,20 +71,21 @@ const RidesHistory: React.FC = () => {
 
   useEffect(() => {
     fetchAllDrivers();
+    fetchRides();
   }, []);
+  console.log(rides);
 
   const handleFilter = (event: React.FormEvent) => {
     event.preventDefault();
     fetchRides();
   };
-
+  console.log(rides);
   return (
     <Box sx={{ padding: 4 }}>
-      <Typography variant="h4" gutterBottom>
-        Histórico de Viagens
+      <Typography variant="h4" gutterBottom textAlign={"center"}>
+        Veja seu Histórico de Viagens
       </Typography>
 
-      {/* Formulário de Filtros */}
       <Box
         component="form"
         onSubmit={handleFilter}
@@ -91,36 +94,37 @@ const RidesHistory: React.FC = () => {
           gap: 2,
           marginBottom: 4,
           flexDirection: { xs: "column", md: "row" },
+          backgroundColor: "white",
+          borderRadius: 2,
+          p: 4,
         }}
       >
-        <Box bgcolor={"white"}>
-          <TextField
-            label="ID do Usuário"
-            value={userId}
-            onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              setUserId(e.target.value)
-            }
-            fullWidth
-          />
-          <FormControl fullWidth>
-            <InputLabel>Motorista</InputLabel>
-            <Select
-              value={driverId}
-              onChange={(e) => setDriverId(e.target.value)}
-              displayEmpty
-            >
-              <MenuItem value="all">Todos</MenuItem>
-              {drivers.map((driver) => (
-                <MenuItem key={driver.id} value={driver.id}>
-                  {driver.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <Button type="submit" variant="contained" color="primary">
-            Aplicar Filtro
-          </Button>
-        </Box>
+        <TextField
+          label="ID do Usuário"
+          value={userId}
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            setUserId(e.target.value)
+          }
+          fullWidth
+        />
+        <FormControl fullWidth>
+          <InputLabel>Motorista</InputLabel>
+          <Select
+            value={driverId}
+            onChange={(e) => setDriverId(e.target.value)}
+            displayEmpty
+          >
+            <MenuItem value="all">Todos</MenuItem>
+            {drivers.map((driver) => (
+              <MenuItem key={driver.id} value={driver.id}>
+                {driver.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <Button type="submit" variant="contained" color="primary">
+          Aplicar Filtro
+        </Button>
       </Box>
 
       {/* Tabela de Viagens */}
@@ -161,13 +165,13 @@ const RidesHistory: React.FC = () => {
             <TableBody>
               {rides.map((ride: Ride) => (
                 <TableRow key={ride.id}>
-                  <TableCell>{new Date(ride.date).toLocaleString()}</TableCell>
-                  <TableCell>{ride.driver.name}</TableCell>
-                  <TableCell>{ride.origin}</TableCell>
-                  <TableCell>{ride.destination}</TableCell>
+                  <TableCell>{new Date(ride?.date).toLocaleString()}</TableCell>
+                  <TableCell>{ride?.driver?.name}</TableCell>
+                  <TableCell>{ride?.origin}</TableCell>
+                  <TableCell>{ride?.destination}</TableCell>
                   <TableCell>{formatDistance(ride.distance)}</TableCell>
-                  <TableCell>{ride.duration}</TableCell>
-                  <TableCell>{`R$ ${ride.value.toFixed(2)}`}</TableCell>
+                  <TableCell>{ride?.duration}</TableCell>
+                  <TableCell>{`R$ ${ride?.value.toFixed(2)}`}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

@@ -163,7 +163,7 @@ const GoogleMapView: React.FC = () => {
     } else {
       console.log(rideData);
       await saveUserRide(rideData);
-      navigate("/viagens");
+      navigate("/busca");
     }
     setShowRideDetails(false);
   };

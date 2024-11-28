@@ -31,9 +31,10 @@ export const getRidesFromDatabase = async (
   customerId: number,
   driverId?: number
 ) => {
+
   return await prisma.ride.findMany({
     where: {
-      userId: customerId,
+      userId: String(customerId),
       ...(driverId && { driverId }),
     },
     orderBy: {
