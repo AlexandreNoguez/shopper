@@ -14,10 +14,21 @@ export const getDriversByMinKm = async (distanceInKm: number) => {
 };
 
 export const fetchDriversFromDatabase = async () => {
-  try {
-    return await prisma.driver.findMany();
-  } catch (error) {
-    console.error("Error in driver repository:", error);
-    throw new Error("Failed to fetch drivers from database");
-  }
+  return await prisma.driver.findMany({
+    select: {
+      id: true,
+      name: true,
+      description: true,
+      ratePerKm: true,
+      minKm: true,
+      car: {
+        select: {
+          brand: true,
+          model: true,
+          year: true,
+          description: true,
+        },
+      },
+    },
+  });
 };

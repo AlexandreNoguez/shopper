@@ -1,6 +1,6 @@
 import UserActionsTypes from "./actionTypes";
 
-export const loginUser = (payload: string) => ({
+export const loginUser = (payload: { id: string; userName: string }) => ({
   type: UserActionsTypes.LOGIN,
   payload,
 });
@@ -9,7 +9,7 @@ export const logoutUser = () => ({
   type: UserActionsTypes.LOGOUT,
 });
 
-export const updateUserId = (payload: number) => ({
+export const updateUserId = (payload: string) => ({
   type: UserActionsTypes.UPDATE,
   payload,
 });

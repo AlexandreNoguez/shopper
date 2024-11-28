@@ -12,37 +12,35 @@ import { toast } from "react-toastify";
 
 import { loginUser } from "../redux/user/actions";
 import { saveUser } from "../services/userService";
+import { generateRandomString } from "../helpers/formatString";
 
 interface PokemonTrainerModalProps {
   open: boolean;
   setOpen: (open: boolean) => void;
 }
 
-const PokemonTrainerModal: React.FC<PokemonTrainerModalProps> = ({
-  open,
-  setOpen,
-}) => {
-  const [loggedUser, setLoggedUser] = useState<string>("");
+const LoginModal: React.FC<PokemonTrainerModalProps> = ({ open, setOpen }) => {
+  const [userName, setUserName] = useState<string>("");
   const dispatch = useDispatch();
 
   const handleSignIn = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!loggedUser) {
+    if (!userName) {
       toast.warning("O campo não pode estar em branco");
       return;
     }
+    const id = generateRandomString();
+    saveUser({ id, name: userName });
 
-    saveUser({ name: loggedUser });
-
-    dispatch(loginUser(loggedUser));
+    dispatch(loginUser({ id, userName }));
     setOpen(false);
-    setLoggedUser("");
+    setUserName("");
   };
 
   const handleClose = () => {
     setOpen(false);
-    setLoggedUser("");
+    setUserName("");
   };
 
   return (
@@ -55,9 +53,9 @@ const PokemonTrainerModal: React.FC<PokemonTrainerModalProps> = ({
             variant="outlined"
             fullWidth
             margin="normal"
-            value={loggedUser}
+            value={userName}
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              setLoggedUser(e.target.value)
+              setUserName(e.target.value)
             }
           />
         </form>
@@ -81,4 +79,4 @@ const PokemonTrainerModal: React.FC<PokemonTrainerModalProps> = ({
   );
 };
 
-export default PokemonTrainerModal;
+export default LoginModal;

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { listDrivers } from "../controllers/driverController";
+import { getAllDrivers } from "../controllers/driverController";
 
 const router = Router();
 
@@ -7,6 +7,6 @@ const router = Router();
  * Rota para listar todos os motoristas
  * GET /api/drivers
  */
-router.get("/", listDrivers);
+router.get("/", getAllDrivers);
 
 export default router;

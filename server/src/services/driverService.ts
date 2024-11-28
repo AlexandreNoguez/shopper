@@ -5,10 +5,9 @@ import { fetchDriversFromDatabase } from "../repositories/driverRepository";
  */
 export const fetchAllDrivers = async () => {
   try {
-    // Busca os motoristas do repositório
+    // Aqui você pode adicionar lógica adicional, caso necessário
     return await fetchDriversFromDatabase();
   } catch (error) {
-    console.error("Error in driver service:", error);
-    throw new Error("Failed to fetch drivers");
+    throw new Error("Erro ao buscar motoristas do banco de dados");
   }
 };

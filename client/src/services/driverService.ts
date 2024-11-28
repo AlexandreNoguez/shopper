@@ -1,9 +1,12 @@
 import { AxiosError } from "axios";
 import Api from "./axiosConfig";
 
-export const getDrivers = async () => {
+export const getAllDrivers = async (): Promise<
+  { id: number; name: string }[]
+> => {
   try {
-    await Api.get("/driver");
+    const response = await Api.get("/driver");
+    return response.data;
   } catch (error) {
     if (error instanceof AxiosError) {
       console.error("Erro ao calcular rota:", error);

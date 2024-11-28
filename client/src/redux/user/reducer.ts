@@ -1,14 +1,13 @@
+import { generateRandomString } from "../../helpers/formatString";
 import UserActionsTypes from "./actionTypes";
 
 interface UserState {
-  id: number;
+  id: string;
   currentUser: string | null;
 }
 
-// Recupera o `id` do localStorage ou usa `1` como valor padrão
-const savedId = localStorage.getItem("userId");
 const initialState: UserState = {
-  id: savedId ? parseInt(savedId, 10) : 1,
+  id: generateRandomString(),
   currentUser: null,
 };
 
@@ -17,10 +16,11 @@ const userReducer = (state: UserState = initialState, action: UserAction) => {
     case UserActionsTypes.LOGIN:
       return {
         ...state,
-        currentUser: action.payload,
+        id: action.payload.id,
+        currentUser: action.payload.userName,
       };
     case UserActionsTypes.LOGOUT:
-      const newId = state.id + 1;
+      const newId = generateRandomString();
       localStorage.setItem("userId", newId.toString()); // Atualiza o localStorage
       return {
         ...state,

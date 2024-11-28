@@ -9,8 +9,8 @@ interface FloatingRideDetailsProps {
   distance: DistanceDuration;
   duration: DistanceDuration;
   drivers?: Driver[] | null;
-  startLocation?: LatLng;
-  endLocation?: LatLng;
+  startLocation?: LatLng | null;
+  endLocation?: LatLng | null;
   visible: boolean;
   rideData: Ride;
   onConfirm: () => void;

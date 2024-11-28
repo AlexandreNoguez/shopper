@@ -1,6 +1,6 @@
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = "postgresql://user:password@postgres_db:5432/my_database"
   // url      = "postgresql://user:password@localhost:5432/my_database"
 }
 
@@ -35,7 +35,7 @@ model Driver {
 }
 
 model User {
-  id      Int      @id @default(autoincrement())
+  id      String      @id 
   name    String
   rides   Ride[]
   reviews Review[]
@@ -46,7 +46,7 @@ model User {
 model Ride {
   id          Int      @id @default(autoincrement())
   user        User     @relation(fields: [userId], references: [id])
-  userId      Int
+  userId      String
   driver      Driver   @relation(fields: [driverId], references: [id])
   driverId    Int
   origin      String
@@ -63,7 +63,7 @@ model Review {
   description String?
   rating      Float
   user        User     @relation(fields: [userId], references: [id])
-  userId      Int
+  userId      String
   driver      Driver   @relation(fields: [driverId], references: [id])
   driverId    Int
   date        DateTime

@@ -19,3 +19,13 @@ export const listDrivers = async (
     res.status(500).json({ error: "Failed to fetch drivers" });
   }
 };
+
+export const getAllDrivers = async (req: Request, res: Response) => {
+  try {
+    const drivers = await fetchAllDrivers();
+    res.status(200).json(drivers);
+  } catch (error) {
+    console.error("Erro ao buscar motoristas:", error);
+    res.status(500).json({ message: "Erro ao buscar motoristas" });
+  }
+};

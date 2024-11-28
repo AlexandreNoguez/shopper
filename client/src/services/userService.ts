@@ -3,6 +3,7 @@ import Api from "./axiosConfig";
 import { AxiosError } from "axios";
 
 interface User {
+  id: string;
   name: string;
 }
 

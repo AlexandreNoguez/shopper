@@ -105,7 +105,7 @@ export const saveUserRide = async (rideData: Ride) => {
 };
 
 export const getUserRides = async (
-  customerId: number,
+  customerId?: number,
   driverId?: number
 ): Promise<RideResponse> => {
   try {

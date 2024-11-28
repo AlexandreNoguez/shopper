@@ -86,6 +86,9 @@ const DriversModal: React.FC<DriversModalProps> = ({
                   <Typography variant="body1">
                     <strong>Distância mínima:</strong> {driver.minKm} km
                   </Typography>
+                  <Box display={"flex"} justifyContent={"end"}>
+                    <Button variant="outlined">Escolher</Button>
+                  </Box>
                   <Typography>
                     Valor estimado:{" "}
                     {driver.estimatedCost

@@ -27,15 +27,13 @@ services:
       - .env
     environment:
       DATABASE_URL: ${DATABASE_URL}
-      PORT: ${PORT}
+      PORT: "8080"
       GOOGLE_API_KEY: ${GOOGLE_API_KEY}
     ports:
       - "8080:8080"
     depends_on:
       - postgres
-    volumes: 
-      - ./server:/app
-
+    command: ./server/start.sh
 
   client:
     build:
@@ -46,7 +44,6 @@ services:
     env_file:
       - .env
     environment:
-      VITE_API_URL: ${VITE_API_URL}
       GOOGLE_API_KEY: ${GOOGLE_API_KEY}
     ports:
       - "80:80"

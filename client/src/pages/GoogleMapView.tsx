@@ -1,8 +1,14 @@
 import React, { useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { Box, Typography } from "@mui/material";
-import { GoogleMap, Polyline, useLoadScript } from "@react-google-maps/api";
+import {
+  GoogleMap,
+  Marker,
+  Polyline,
+  useLoadScript,
+} from "@react-google-maps/api";
 
 import BaseButton from "../components/BaseButton";
 import BaseInput from "../components/BaseInput";
@@ -38,10 +44,12 @@ export interface Ride {
 }
 
 const GoogleMapView: React.FC = () => {
+  const navigate = useNavigate();
+
   const [origin, setOrigin] = useState<string>("Porto Alegre, RS");
   const [destination, setDestination] = useState<string>("Novo Hamburgo, RS");
-  const [startLocation, setStartLocation] = useState<LatLng>();
-  const [endLocation, setEndLocation] = useState<LatLng>();
+  const [startLocation, setStartLocation] = useState<LatLng | null>(null);
+  const [endLocation, setEndLocation] = useState<LatLng | null>(null);
   const [drivers, setDrivers] = useState<Driver[] | null>();
   const [loading, setLoading] = useState<boolean>(false);
   const [polylinePath, setPolylinePath] = useState<LatLng[] | null>(null);
@@ -83,7 +91,12 @@ const GoogleMapView: React.FC = () => {
   const mapRef = useRef<google.maps.Map | null>(null);
 
   const handleCalculateRoute = async () => {
+    setDistanceKm({ text: "", value: 0 });
+    setRideDuration({ text: "", value: 0 });
     setPolylinePath(null);
+    setStartLocation(null);
+    setEndLocation(null);
+    setDrivers([]);
     setShowRideDetails(true);
 
     if (!currentUser) {
@@ -135,18 +148,22 @@ const GoogleMapView: React.FC = () => {
       distance: distanceKm.value,
       duration: rideDuration.text,
       driver: { id: selectedDriver.id, name: selectedDriver.name },
-      value: selectedDriver.value ?? 0, // Usa `0` como valor padrão para evitar o problema
+      value: selectedDriver.value ?? 0,
     };
 
     setRideData(rideDataToSave);
   };
 
   const handleConfirmRide = async () => {
+    console.log(rideData);
+
     const validationError = validateRideData(rideData);
     if (validationError) {
       return toast.warning(validationError);
     } else {
+      console.log(rideData);
       await saveUserRide(rideData);
+      navigate("/viagens");
     }
     setShowRideDetails(false);
   };
@@ -203,6 +220,27 @@ const GoogleMapView: React.FC = () => {
             mapRef.current = map;
           }}
         >
+          {/* Marcador para o ponto de origem (A) */}
+          {startLocation && (
+            <Marker
+              position={startLocation}
+              icon={{
+                url: "http://maps.google.com/mapfiles/kml/paddle/A.png",
+                scaledSize: new google.maps.Size(32, 32),
+              }}
+            />
+          )}
+
+          {/* Marcador para o ponto de destino (B) */}
+          {endLocation && (
+            <Marker
+              position={endLocation}
+              icon={{
+                url: "http://maps.google.com/mapfiles/kml/paddle/B.png",
+                scaledSize: new google.maps.Size(32, 32),
+              }}
+            />
+          )}
           {polylinePath && <Polyline path={polylinePath} />}
         </GoogleMap>
       )}

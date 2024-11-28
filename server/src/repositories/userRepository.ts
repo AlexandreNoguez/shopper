@@ -1,9 +1,9 @@
 import prisma from "../prisma/client";
 
-export const createUserInDatabase = async (name: string) => {
+export const createUserInDatabase = async (id: string, name: string) => {
   try {
     const user = await prisma.user.create({
-      data: { name },
+      data: { id, name },
     });
     return user;
   } catch (error) {
